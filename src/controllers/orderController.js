@@ -36,22 +36,21 @@ const createOrder = async (req, res) => {
       status: "Pending",
     });
 
-   if (
-  paymentMethod === "COD" ||
-  req.body.paymentStatus === "Paid"
-) {
-  await cartModel.findOneAndUpdate(
-    { user: req.user._id },
-    { $set: { items: [] } }
-  );
-}
+    if (paymentMethod === "COD" || req.body.paymentStatus === "Paid") {
+      await cartModel.findOneAndUpdate(
+        { user: req.user._id },
+        { $set: { items: [] } },
+      );
+    }
 
     try {
-      await sendEmail(
+      sendEmail(
         req.user.email,
         "Order Confirmed",
         `Order ID: ${order._id}`,
-      );
+      ).catch((e) => console.log("Email failed", e));
+
+      return res.status(201).json(order);
     } catch (e) {
       console.log("Email failed", e);
     }
@@ -66,8 +65,10 @@ const getMyOrders = async (req, res) => {
   try {
     const orders = await orderModel
       .find({ user: req.user._id })
-      .populate("items.product")
-      .populate("user", "name email");
+      .populate("items.product", "name image price")
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json(orders);
   } catch (error) {
@@ -80,8 +81,10 @@ const getAllOrders = async (req, res) => {
   try {
     const orders = await orderModel
       .find()
-      .populate("items.product")
-      .populate("user", "name email");
+      .select("_id status user createdAt")
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json(orders);
   } catch (error) {
@@ -92,14 +95,16 @@ const getAllOrders = async (req, res) => {
 };
 const updateOrderStatus = async (req, res) => {
   try {
-    const order = await orderModel.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({
-        message: "order not found",
-      });
-    }
-    order.status = req.body.status;
-    await order.save();
+    const order = await orderModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: req.body.status,
+      },
+      {
+        new: true,
+      },
+    );
+
     res.json(order);
   } catch (error) {
     res.status(500).json({
