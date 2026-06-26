@@ -20,6 +20,7 @@ const createOrder = async (req, res) => {
     );
 
     // 3. Create Order
+    const invoiceNumber = `INV-${Date.now()}`;
     const order = await orderModel.create({
       user: req.user._id,
       items: cart.items.map((item) => ({
@@ -33,6 +34,8 @@ const createOrder = async (req, res) => {
         paymentMethod === "COD"
           ? "Pending"
           : req.body.paymentStatus || "Pending",
+      invoiceNumber,
+      invoiceGeneratedAt: new Date(),
       status: "Pending",
     });
 

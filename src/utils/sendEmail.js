@@ -3,9 +3,9 @@ const nodemailer = require("nodemailer");
 const sendEmail = async (
   to,
   subject,
-  html
+  html,
 ) => {
-
+    console.log("Creating transporter");
   const transporter =
     nodemailer.createTransport({
       service: "gmail",

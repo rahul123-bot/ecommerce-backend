@@ -1,60 +1,76 @@
 const mongoose = require("mongoose");
-const orderSchema = new mongoose.Schema({
-    user:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users"
+
+const orderSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
     },
-    items:[
-        {
-            product:{
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"product",
-            },
-            quantity:Number,
+
+    items: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "product",
         },
+        quantity: Number,
+      },
     ],
-    shippingAddress:{
-        address: String,
-        city: String,
-        state: String,
-        postalCode: String,
-        phone: String,
+
+    shippingAddress: {
+      address: String,
+      city: String,
+      state: String,
+      postalCode: String,
+      phone: String,
     },
+
     totalPrice: Number,
+
     paymentMethod: {
-        type: String,
-        enum: ["COD", "Razorpay"],
-        required: true
-    },
-    paymentStatus:{
-        type:String,
-        enum:[
-            "Pending",
-            "Paid",
-            "Failed"
-        ],
-        default:"Pending"
+      type: String,
+      enum: ["COD", "Razorpay"],
+      required: true,
     },
 
-    status:{
-        type: String,
-        enum:[
-            "Pending",
-            "Processing",
-            "Shipped",
-            "Delivered",
-            "Cancelled",
-        ],
-         default:"Pending",
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Failed"],
+      default: "Pending",
     },
-},
-{
-    timestamps:true,
-});
+
+    // Invoice Fields
+    invoiceNumber: {
+      type: String,
+      unique: true,
+    },
+
+    invoiceGeneratedAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "Pending",
+        "Processing",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
+      ],
+      default: "Pending",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 orderSchema.index({ user: 1 });
-
 orderSchema.index({ createdAt: -1 });
-
 orderSchema.index({ status: 1 });
-const orderModel = mongoose.model("order",orderSchema);
+
+const orderModel = mongoose.model("order", orderSchema);
+
 module.exports = orderModel;
