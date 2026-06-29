@@ -6,34 +6,34 @@ const sendEmail = async (to, subject, html) => {
       throw new Error("Email service is not configured");
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Gmail App Password
-      },
-    });
+    const transporter = process.env.EMAIL_HOST
+      ? nodemailer.createTransport({
+          host: process.env.EMAIL_HOST,
+          port: Number(process.env.EMAIL_PORT || 587),
+          secure: String(process.env.EMAIL_SECURE).toLowerCase() === "true",
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        })
+      : nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
 
-   console.log("Verifying SMTP...");
+    await transporter.verify();
 
-await transporter.verify();
-
-console.log("SMTP verified");
-
-console.log("Sending email...");
-
-    const info = await transporter.sendMail({
+    return await transporter.sendMail({
       from: `"AI Shop" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
     });
-
-    console.log("✅ Email sent:", info.messageId);
-
-    return info;
   } catch (error) {
-    console.error("❌ Email Error:", error.message);
+    console.error("Email Error:", error);
     throw error;
   }
 };

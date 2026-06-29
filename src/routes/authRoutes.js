@@ -4,7 +4,7 @@ const { googleLogin } = require("../controllers/googleAuthController.js");
 const {
   forgotPassword,
   resetPassword,
-} = require("../controllers/forgotPasswordController");
+} = require("../controllers/forgotPasswordController.js");
 const authRouter = express.Router();
 
 authRouter.post("/register", authController.register);

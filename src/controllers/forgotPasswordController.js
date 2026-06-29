@@ -8,8 +8,7 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const normalizedEmail =
-      email?.toLowerCase().trim();
+    const normalizedEmail = email?.toLowerCase().trim();
 
     const user = await userModel.findOne({
       email: normalizedEmail,
@@ -31,8 +30,12 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const resetUrl =
-      `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const clientUrl =
+      process.env.CLIENT_URL?.replace(/\/$/, "") ||
+      req.headers.origin?.replace(/\/$/, "") ||
+      `${req.protocol}://${req.get("host")}`;
+
+    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
     await sendEmail(
       user.email,
@@ -59,7 +62,9 @@ const forgotPassword = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: error.message,
+      message:
+        error.message ||
+        "Failed to send password reset email",
     });
   }
 };
