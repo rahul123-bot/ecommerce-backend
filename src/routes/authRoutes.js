@@ -2,18 +2,17 @@ const express = require("express");
 const authController = require("../controllers/authController.js");
 const { googleLogin } = require("../controllers/googleAuthController.js");
 const {
-sendOtp,
-verifyOtp
-} = require("../controllers/otpController.js");
+  forgotPassword,
+  resetPassword,
+} = require("../controllers/forgotPasswordController");
 const authRouter = express.Router();
 
 authRouter.post("/register", authController.register);
 authRouter.post("/login", authController.login);
 
 authRouter.post("/google", googleLogin);
-authRouter.post("/send-otp",sendOtp);
+authRouter.post("/forgot-password", forgotPassword);
 
-authRouter.post("/verify-otp",verifyOtp);
-
+authRouter.post("/reset-password/:token", resetPassword);
 
 module.exports = authRouter;
