@@ -38,7 +38,7 @@ const forgotPassword = async (req, res) => {
 
     const resetUrl =
       `${clientUrl}/reset-password/${resetToken}`;
-
+    console.log("RESET URL:", resetUrl);
     await sendEmail(
       user.email,
       "Password Reset Request",
