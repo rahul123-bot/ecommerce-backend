@@ -20,8 +20,9 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    const resetToken =
-      crypto.randomBytes(32).toString("hex");
+    const resetToken = crypto
+      .randomBytes(32)
+      .toString("hex");
 
     user.resetPasswordToken = resetToken;
 
@@ -35,65 +36,90 @@ const forgotPassword = async (req, res) => {
       req.headers.origin?.replace(/\/$/, "") ||
       `${req.protocol}://${req.get("host")}`;
 
-    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
+    const resetUrl =
+      `${clientUrl}/reset-password/${resetToken}`;
 
     await sendEmail(
       user.email,
-      "Password Reset",
+      "Password Reset Request",
       `
-      <h2>Password Reset Request</h2>
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto;">
+        <h2>Password Reset Request</h2>
 
-      <p>Click the link below:</p>
+        <p>Hello ${user.name},</p>
 
-      <a href="${resetUrl}">
-        Reset Password
-      </a>
+        <p>
+          We received a request to reset your password.
+        </p>
 
-      <p>Link expires in 15 minutes.</p>
+        <p>
+          Click the button below to create a new password:
+        </p>
+
+        <a
+          href="${resetUrl}"
+          style="
+            display:inline-block;
+            background:#f97316;
+            color:white;
+            text-decoration:none;
+            padding:12px 20px;
+            border-radius:6px;
+            font-weight:bold;
+          "
+        >
+          Reset Password
+        </a>
+
+        <p style="margin-top:20px;">
+          This link will expire in 15 minutes.
+        </p>
+
+        <p>
+          If you did not request this password reset,
+          please ignore this email.
+        </p>
+      </div>
       `
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message:
-        "Password reset link sent",
+      message: "Password reset link sent",
     });
+
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message:
         error.message ||
         "Failed to send password reset email",
     });
   }
 };
+
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
 
     const { password } = req.body;
 
-    const user =
-      await userModel.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpire: {
-          $gt: Date.now(),
-        },
-      });
+    const user = await userModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: {
+        $gt: Date.now(),
+      },
+    });
 
     if (!user) {
       return res.status(400).json({
-        message:
-          "Invalid or expired token",
+        message: "Invalid or expired token",
       });
     }
 
     const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
+      await bcrypt.hash(password, 10);
 
     user.password = hashedPassword;
 
@@ -102,20 +128,21 @@ const resetPassword = async (req, res) => {
 
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message:
-        "Password reset successful",
+      message: "Password reset successful",
     });
+
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
-module.exports={
-   forgotPassword,
-   resetPassword,
-}
+
+module.exports = {
+  forgotPassword,
+  resetPassword,
+};
