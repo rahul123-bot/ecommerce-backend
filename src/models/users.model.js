@@ -97,7 +97,12 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "salesman"],
       default: "user",
     },
-
+    otp: {
+      type: String,
+    },
+    otpExpire: {
+      type: Date,
+    },
     resetPasswordToken: {
       type: String,
     },
