@@ -8,15 +8,22 @@ const razorpay = new Razorpay({
 })
 const CreateOrder = async(req,res)=>{
     try{  
-     
-        const {amount} = req.body ;
+        const { amount } = req.body;
+        const parsedAmount = Number(amount);
+
+        if (!parsedAmount || parsedAmount <= 0) {
+            return res.status(400).json({
+                message: "Invalid payment amount. Amount must be greater than 0.",
+            });
+        }
+
         const option = {
-            amount: amount * 100,
+            amount: parsedAmount * 100,
             currency: "INR",
             receipt: `receipt_${Date.now()}`
         }
         const order = await razorpay.orders.create(option);
-        res.json (order);
+        res.json(order);
     }catch(error){
          res.status(500).json({
          message: error.message,
