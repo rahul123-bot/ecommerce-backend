@@ -13,7 +13,7 @@ const sendEmail = async (
     const response =
       await resend.emails.send({
         from:
-          "AI Shop <onboarding@resend.dev>",
+          "NexaCart <onboarding@resend.dev>",
         to,
         subject,
         html,

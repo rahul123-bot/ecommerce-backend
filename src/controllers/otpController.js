@@ -40,7 +40,7 @@ const sendOtp = async (req, res) => {
       user.email,
       "Login OTP",
       `
-      <h2>AI Shop Login OTP</h2>
+      <h2>NexaCart Login OTP</h2>
 
       <h1>${otp}</h1>
 
